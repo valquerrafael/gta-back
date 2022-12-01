@@ -1,6 +1,6 @@
 package br.edu.ifpb.gta.gtaback.model;
 
-import br.edu.ifpb.gta.gtaback.Role;
+import br.edu.ifpb.gta.gtaback.services.Util.Role;
 
 import javax.persistence.*;
 import java.util.List;

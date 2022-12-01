@@ -1,6 +1,5 @@
 package br.edu.ifpb.gta.gtaback.services;
 
-import br.edu.ifpb.gta.gtaback.Role;
 import br.edu.ifpb.gta.gtaback.model.Trail;
 import br.edu.ifpb.gta.gtaback.model.User;
 import br.edu.ifpb.gta.gtaback.repositories.TrailRepository;
@@ -10,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static br.edu.ifpb.gta.gtaback.services.UserService.isUserRole;
+import static br.edu.ifpb.gta.gtaback.services.Util.*;
 
 @Service
 public class TrailService {
@@ -35,11 +34,16 @@ public class TrailService {
     @Transactional
     public Trail update(Long id, Trail trail) throws Exception {
         Trail trailToUpdate = getById(id);
-        // verify whether teacher exists
 
-        if (isTrailValid(trail, false) && isUserRole(trail.getTeacher(), Role.TEACHER)) {
+        if (isUserRole(trail.getTeacher(), Role.TEACHER))
+            throw new Exception("User is not a teacher");
+        if (!doesUserExist(trail.getTeacher()))
+            throw new Exception("Teacher not found with id: " + trail.getTeacher().getId());
+
+        if (isTrailValid(trail, false)) {
             trailToUpdate.setName(trail.getName());
             trailToUpdate.setDescription(trail.getDescription());
+            trailToUpdate.setContent(trail.getContent());
             trailToUpdate.setTeacher(trail.getTeacher());
             return trailRepository.save(trailToUpdate);
         }
@@ -50,9 +54,13 @@ public class TrailService {
     @Transactional
     public Trail addStudent(Long id, User student) throws Exception {
         Trail trail = getById(id);
-        // verify whether student exists
 
-        if (isUserRole(student, Role.STUDENT) && !trail.getStudents().contains(student)) {
+        if (!isUserRole(student, Role.STUDENT))
+            throw new Exception("User is not a student");
+        if (!doesUserExist(student))
+            throw new Exception("Student not found with id: " + student.getId());
+
+        if (!trail.getStudents().contains(student)) {
             trail.getStudents().add(student);
             return trailRepository.save(trail);
         }
@@ -64,7 +72,7 @@ public class TrailService {
     public Trail removeStudent(Long id, User student) throws Exception {
         Trail trail = getById(id);
 
-        if (isUserRole(student, Role.STUDENT) && trail.getStudents().contains(student)) {
+        if (trail.getStudents().contains(student)) {
             trail.getStudents().remove(student);
             return trailRepository.save(trail);
         }
@@ -75,34 +83,5 @@ public class TrailService {
     @Transactional
     public void delete(Long id) {
         trailRepository.deleteById(id);
-    }
-
-    private boolean isTrailValid(Trail trail, boolean isNew) throws Exception {
-        boolean isValid = (
-            trail != null
-            && trail.getName() != null
-            && !trail.getName().isEmpty()
-            && !trail.getName().isBlank()
-            && trail.getDescription() != null
-            && !trail.getDescription().isEmpty()
-            && !trail.getDescription().isBlank()
-            && trail.getTeacher() != null
-        );
-
-        if (isValid) {
-            if (isNew)
-                return !isNameInUse(trail.getName());
-
-            return true;
-        }
-
-        throw new Exception("Trail data not valid: " + trail);
-    }
-
-    private boolean isNameInUse(String name) throws Exception {
-        if (trailRepository.findByName(name) == null)
-            return false;
-
-        throw new Exception("Trail already exists with name: " + name);
     }
 }

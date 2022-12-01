@@ -13,6 +13,8 @@ public class Trail {
     private String name;
     @Column(length = 1000)
     private String description;
+    @Column(length = 3000)
+    private String content;
     @OneToOne()
     private User teacher;
     @OneToMany(
@@ -39,6 +41,14 @@ public class Trail {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public User getTeacher() {

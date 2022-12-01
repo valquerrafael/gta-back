@@ -1,6 +1,5 @@
 package br.edu.ifpb.gta.gtaback.controller;
 
-import br.edu.ifpb.gta.gtaback.ApiError;
 import br.edu.ifpb.gta.gtaback.model.Trail;
 import br.edu.ifpb.gta.gtaback.model.User;
 import br.edu.ifpb.gta.gtaback.services.UserService;
@@ -50,21 +49,20 @@ public class UserController {
     }
 
     @PostMapping("/users/{id}/add-trail")
-    public User addTrail(@PathVariable("id") Long id, @RequestBody Trail trail) throws ApiError {
+    public User addTrail(@PathVariable("id") Long id, @RequestBody Trail trail) {
         try {
             return userService.addTrail(id, trail);
         } catch (Exception e) {
-            // throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trail not added to user", e);
-            throw new ApiError(HttpStatus.BAD_REQUEST, "Trail not added to user", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trail not added to user", e);
         }
     }
 
     @PostMapping("/users/{id}/remove-trail")
-    public User removeTrail(@PathVariable("id") Long id, @RequestBody Trail trail) throws ApiError {
+    public User removeTrail(@PathVariable("id") Long id, @RequestBody Trail trail) {
         try {
             return userService.removeTrail(id, trail);
         } catch (Exception e) {
-            throw new ApiError(HttpStatus.BAD_REQUEST, "Trail not removed from user", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trail not removed from user", e);
         }
     }
 
