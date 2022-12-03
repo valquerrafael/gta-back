@@ -1,4 +1,4 @@
-package br.edu.ifpb.gtaback.gtaback;
+package br.edu.ifpb.gta.gtaback;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -12,7 +12,7 @@ public class TrailDTO {
     private String description;
     private String content;
     private Long teacherId;
-    private List<Long> studentsIds;
+    private List<Long> studentsIds = new ArrayList<>();
 
     public TrailDTO(Trail trail) {
         this.id = trail.getId();
@@ -21,5 +21,29 @@ public class TrailDTO {
         this.content = trail.getContent();
         this.teacherId = trail.getTeacher().getId();
         trail.getStudents().forEach(student -> studentsIds.add(student.getId()));
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public Long getTeacherId() {
+        return teacherId;
+    }
+
+    public List<Long> getStudentsIds() {
+        return studentsIds;
     }
 }
