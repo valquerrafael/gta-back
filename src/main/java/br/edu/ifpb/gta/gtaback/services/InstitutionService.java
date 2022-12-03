@@ -1,113 +1,187 @@
 package br.edu.ifpb.gta.gtaback.services;
 
-import br.edu.ifpb.gta.gtaback.model.Institution;
-import br.edu.ifpb.gta.gtaback.model.User;
+import br.edu.ifpb.gta.gtaback.DTOs.InstitutionDTO;
+import br.edu.ifpb.gta.gtaback.DTOs.TrailDTO;
+import br.edu.ifpb.gta.gtaback.DTOs.UserDTO;
+import br.edu.ifpb.gta.gtaback.exceptions.*;
+import br.edu.ifpb.gta.gtaback.models.Institution;
+import br.edu.ifpb.gta.gtaback.models.Trail;
+import br.edu.ifpb.gta.gtaback.models.User;
 import br.edu.ifpb.gta.gtaback.repositories.InstitutionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static br.edu.ifpb.gta.gtaback.services.Util.*;
 
 @Service
 public class InstitutionService {
+    // TODO: adicionar usuário que está chamando o método
+    // TODO: verificar se usuário tem permissão
+    // TODO: verificar quais dados não podem ser retornados
+    // TODO: criptografar dados necessários
     @Autowired
     private InstitutionRepository institutionRepository;
-    @Autowired
-    private UserService userService;
 
-    public List<Institution> getAll() {
-        return institutionRepository.findAll();
+    public InstitutionDTO login(String cnpj, String password) {
+        Institution institution = institutionRepository.findByCnpj(cnpj);
+
+        if (institution == null)
+            throw new InstitutionNotFoundException("Institution not found with cnpj: " + cnpj);
+        if (!institution.getPassword().equals(password))
+            throw new LoginFailedException("Login failed");
+
+        return new InstitutionDTO(institution);
     }
 
-    public Institution getById(Long id) throws Exception {
-        return institutionRepository.findById(id).orElseThrow(
-            () -> new Exception("Institution not found with id: " + id)
-        );
-    }
-
-    @Transactional
-    public Institution create(Institution institution) throws Exception {
-        if (isInstitutionValid(institution, true))
-            return institutionRepository.save(institution);
-
-        return null;
+    public InstitutionDTO getDTO(Long id) {
+        return new InstitutionDTO(getInstitution(id));
     }
 
     @Transactional
-    public Institution update(Long id, Institution institution) throws Exception {
-        Institution institutionToUpdate = getById(id);
+    public InstitutionDTO create(Institution institution) {
+        isInstitutionValid(institution, true);
 
-        if (isInstitutionValid(institution, false)) {
+        institutionRepository.save(institution);
+        return new InstitutionDTO(institution);
+    }
+
+    @Transactional
+    public InstitutionDTO update(Long id, Institution institution) {
+        Institution institutionToUpdate = getInstitution(id);
+
+        isInstitutionValid(institution, false);
+
+        if (institution.getName() != null)
             institutionToUpdate.setName(institution.getName());
-            return institutionRepository.save(institutionToUpdate);
-        }
+        if (institution.getPassword() != null)
+            institutionToUpdate.setPassword(institution.getPassword());
+        institutionRepository.save(institutionToUpdate);
+        return new InstitutionDTO(institutionToUpdate);
+    }
 
-        return null;
+    public List<UserDTO> getTeachers(Long id) {
+        Institution institution = getInstitution(id);
+        List<UserDTO> teachers = new ArrayList<>();
+
+        for (User user : institution.getTeachers())
+            teachers.add(new UserDTO(user));
+
+        return teachers;
+    }
+
+    public List<UserDTO> getStudents(Long id) {
+        Institution institution = getInstitution(id);
+        List<UserDTO> students = new ArrayList<>();
+
+        for (User user : institution.getStudents())
+            students.add(new UserDTO(user));
+
+        return students;
+    }
+
+    public List<TrailDTO> getTrails(Long id) {
+        Institution institution = getInstitution(id);
+        List<TrailDTO> trails = new ArrayList<>();
+
+        for (Trail trail : institution.getTrails())
+            trails.add(new TrailDTO(trail));
+
+        return trails;
     }
 
     @Transactional
-    public Institution addTeacher(Long id, User teacher) throws Exception {
-        Institution institution = getById(id);
+    public InstitutionDTO addTeacher(Long id, Long teacherId) {
+        Institution institution = getInstitution(id);
+        User teacher = getUser(teacherId);
 
-        if (!isUserRole(teacher, Role.TEACHER))
-            throw new Exception("User is not a teacher");
-        if (!doesUserExist(teacher))
-            throw new Exception("Teacher not found with id: " + teacher.getId());
+        if (!teacher.getRole().equals(Role.TEACHER))
+            throw new UserIsNotRoleException("New institution's teacher is not a teacher");
+        if (institution.getTeachers().contains(teacher))
+            throw new TrailHasUserException("Institution already has user: " + teacher.getId());
 
-        if (!institution.getTeachers().contains(teacher)) {
-            institution.getTeachers().add(teacher);
-            return institutionRepository.save(institution);
-        }
-
-        throw new Exception("User is already in institution: " + institution.getName());
+        institution.addTeacher(teacher);
+        institutionRepository.save(institution);
+        return new InstitutionDTO(institution);
     }
 
     @Transactional
-    public Institution removeTeacher(Long id, User teacher) throws Exception {
-        Institution institution = getById(id);
+    public InstitutionDTO removeTeacher(Long id, Long teacherId) {
+        Institution institution = getInstitution(id);
+        User teacher = getUser(teacherId);
 
-        if (institution.getTeachers().contains(teacher)) {
-            institution.getTeachers().remove(teacher);
-            return institutionRepository.save(institution);
-        }
+        if (!institution.getStudents().contains(teacher))
+            throw new TrailHasUserException("Institution does not have user: " + teacher.getId());
 
-        throw new Exception("User is not in institution: " + institution.getName());
+        institution.removeTeacher(teacher);
+        institutionRepository.save(institution);
+        return new InstitutionDTO(institution);
     }
 
     @Transactional
-    public Institution addStudent(Long id, User student) throws Exception {
-        Institution institution = getById(id);
+    public InstitutionDTO addStudent(Long id, Long studentId) {
+        Institution institution = getInstitution(id);
+        User student = getUser(studentId);
 
-        if (!isUserRole(student, Role.STUDENT))
-            throw new Exception("User is not a student");
-        if (!doesUserExist(student))
-            throw new Exception("Student not found with id: " + student.getId());
+        if (!student.getRole().equals(Role.STUDENT))
+            throw new UserIsNotRoleException("New institution's student is not a student");
+        if (institution.getStudents().contains(student))
+            throw new TrailHasUserException("Institution already has user: " + student.getId());
 
-        if (!institution.getTeachers().contains(student)) {
-            institution.getTeachers().add(student);
-            return institutionRepository.save(institution);
-        }
-
-        throw new Exception("User is already in institution: " + institution.getName());
+        institution.addStudent(student);
+        institutionRepository.save(institution);
+        return new InstitutionDTO(institution);
     }
 
     @Transactional
-    public Institution removeStudent(Long id, User student) throws Exception {
-        Institution institution = getById(id);
+    public InstitutionDTO removeStudent(Long id, Long studentId) {
+        Institution institution = getInstitution(id);
+        User student = getUser(studentId);
 
-        if (institution.getTeachers().contains(student)) {
-            institution.getTeachers().remove(student);
-            return institutionRepository.save(institution);
-        }
+        if (!institution.getStudents().contains(student))
+            throw new TrailHasUserException("Institution does not have user: " + student.getId());
 
-        throw new Exception("User is not in institution: " + institution.getName());
+        institution.removeStudent(student);
+        institutionRepository.save(institution);
+        return new InstitutionDTO(institution);
     }
 
     @Transactional
     public void delete(Long id) {
         institutionRepository.deleteById(id);
+    }
+
+    private void isInstitutionValid(Institution institution, boolean isNew) {
+        if (institution == null)
+            throw new CreateOrUpdateDataException("Institution is null");
+
+        if (isNew)
+            isInstitutionValidToCreate(institution);
+        else
+            isInstitutionValidToUpdate(institution);
+    }
+
+    private void isInstitutionValidToCreate(Institution institution) {
+        if (institution.getName() == null || institution.getName().isEmpty() || institution.getName().isBlank())
+            throw new CreateOrUpdateDataException("Name is null or empty");
+        if (institution.getCnpj() == null || institution.getCnpj().isEmpty() || institution.getCnpj().isBlank())
+            throw new CreateOrUpdateDataException("CNPJ is null or empty");
+        if (institution.getPassword() == null || institution.getPassword().isEmpty() || institution.getPassword().isBlank())
+            throw new CreateOrUpdateDataException("Password is empty");
+        if (institutionRepository.findByName(institution.getName()) != null)
+            throw new CreateOrUpdateDataException("Name already in use: " + institution.getName());
+    }
+
+    private void isInstitutionValidToUpdate(Institution institution) {
+        if (institution.getName().isEmpty() || institution.getName().isBlank())
+            throw new CreateOrUpdateDataException("Name is empty");
+        if (institution.getPassword().isEmpty() || institution.getPassword().isBlank())
+            throw new CreateOrUpdateDataException("Password is empty");
+        Institution institutionToUpdate = getInstitution(institution.getId());
+        if (!institutionRepository.findByName(institution.getName()).getId().equals(institutionToUpdate.getId()))
+            throw new CreateOrUpdateDataException("Name already in use: " + institution.getName());
     }
 }

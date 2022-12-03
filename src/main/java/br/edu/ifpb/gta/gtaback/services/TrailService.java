@@ -1,87 +1,131 @@
 package br.edu.ifpb.gta.gtaback.services;
 
-import br.edu.ifpb.gta.gtaback.model.Trail;
-import br.edu.ifpb.gta.gtaback.model.User;
+import br.edu.ifpb.gta.gtaback.DTOs.TrailDTO;
+import br.edu.ifpb.gta.gtaback.exceptions.CreateOrUpdateDataException;
+import br.edu.ifpb.gta.gtaback.exceptions.TrailHasUserException;
+import br.edu.ifpb.gta.gtaback.exceptions.UserIsNotRoleException;
+import br.edu.ifpb.gta.gtaback.models.Trail;
+import br.edu.ifpb.gta.gtaback.models.User;
 import br.edu.ifpb.gta.gtaback.repositories.TrailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static br.edu.ifpb.gta.gtaback.services.Util.*;
 
 @Service
 public class TrailService {
+    // TODO: adicionar usuário que está chamando o método
+    // TODO: verificar se usuário tem permissão
+    // TODO: verificar quais dados não podem ser retornados
+    // TODO: criptografar dados necessários
     @Autowired
     private TrailRepository trailRepository;
 
-    public List<Trail> getAll() {
-        return trailRepository.findAll();
+    public List<TrailDTO> getAll() {
+        List<TrailDTO> trails = new ArrayList<>();
+
+        for (Trail trail : trailRepository.findAll())
+            trails.add(new TrailDTO(trail));
+
+        return trails;
     }
 
-    public Trail getById(Long id) throws Exception {
-        return trailRepository.findById(id).orElseThrow(() -> new Exception("Trail not found with id: " + id));
+    public TrailDTO getDTO(Long id) {
+        return new TrailDTO(getTrail(id));
     }
 
-    public Trail create(Trail trail) throws Exception {
-        if (isTrailValid(trail, true))
-            return trailRepository.save(trail);
+    public TrailDTO create(Trail trail) {
+        isTrailValid(trail, true);
 
-        return null;
+        trailRepository.save(trail);
+        return new TrailDTO(trail);
     }
 
     @Transactional
-    public Trail update(Long id, Trail trail) throws Exception {
-        Trail trailToUpdate = getById(id);
+    public TrailDTO update(Long id, Trail trail) {
+        Trail trailToUpdate = getTrail(id);
 
-        if (isUserRole(trail.getTeacher(), Role.TEACHER))
-            throw new Exception("User is not a teacher");
-        if (!doesUserExist(trail.getTeacher()))
-            throw new Exception("Teacher not found with id: " + trail.getTeacher().getId());
+        isTrailValid(trail, false);
 
-        if (isTrailValid(trail, false)) {
+        if (trail.getName() != null)
             trailToUpdate.setName(trail.getName());
+        if (trail.getDescription() != null)
             trailToUpdate.setDescription(trail.getDescription());
+        if (trail.getContent() != null)
             trailToUpdate.setContent(trail.getContent());
-            trailToUpdate.setTeacher(trail.getTeacher());
-            return trailRepository.save(trailToUpdate);
-        }
-
-        return null;
+        trailRepository.save(trailToUpdate);
+        return new TrailDTO(trailToUpdate);
     }
 
     @Transactional
-    public Trail addStudent(Long id, User student) throws Exception {
-        Trail trail = getById(id);
+    public TrailDTO addStudent(Long id, Long studentId) {
+        Trail trail = getTrail(id);
+        User student = getUser(studentId);
 
-        if (!isUserRole(student, Role.STUDENT))
-            throw new Exception("User is not a student");
-        if (!doesUserExist(student))
-            throw new Exception("Student not found with id: " + student.getId());
+        if (!student.getRole().equals(Role.STUDENT))
+            throw new UserIsNotRoleException("New trail's student is not a student");
+        if (trail.getStudents().contains(student))
+            throw new TrailHasUserException("Trail already has user: " + student.getId());
 
-        if (!trail.getStudents().contains(student)) {
-            trail.getStudents().add(student);
-            return trailRepository.save(trail);
-        }
-
-        throw new Exception("User already in trail: " + trail.getName());
+        trail.addStudent(student);
+        trailRepository.save(trail);
+        return new TrailDTO(trail);
     }
 
     @Transactional
-    public Trail removeStudent(Long id, User student) throws Exception {
-        Trail trail = getById(id);
+    public TrailDTO removeStudent(Long id, Long studentId) {
+        Trail trail = getTrail(id);
+        User student = getUser(studentId);
 
-        if (trail.getStudents().contains(student)) {
-            trail.getStudents().remove(student);
-            return trailRepository.save(trail);
-        }
+        if (!trail.getStudents().contains(student))
+            throw new TrailHasUserException("Trail does not have user: " + student.getId());
 
-        throw new Exception("User not in trail: " + trail.getName());
+        trail.removeStudent(student);
+        trailRepository.save(trail);
+        return new TrailDTO(trail);
     }
 
     @Transactional
     public void delete(Long id) {
         trailRepository.deleteById(id);
+    }
+
+    private void isTrailValid(Trail trail, boolean isNew) {
+        if (trail == null)
+            throw new CreateOrUpdateDataException("Trail is null");
+
+        if (isNew)
+            isTrailValidToCreate(trail);
+        else
+            isTrailValidToUpdate(trail);
+    }
+
+    private void isTrailValidToCreate(Trail trail) {
+        if (trail.getName() == null || trail.getName().isEmpty() || trail.getName().isBlank())
+            throw new CreateOrUpdateDataException("Name is null or empty");
+        if (trail.getDescription() == null || trail.getDescription().isEmpty() || trail.getDescription().isBlank())
+            throw new CreateOrUpdateDataException("Description is null or empty");
+        if (trail.getContent() == null || trail.getContent().isEmpty() || trail.getContent().isBlank())
+            throw new CreateOrUpdateDataException("Content is null or empty");
+        if (trail.getTeacher() == null)
+            throw new CreateOrUpdateDataException("Teacher is null");
+        if (trailRepository.findByName(trail.getName()) != null)
+            throw new CreateOrUpdateDataException("Name already in use: " + trail.getName());
+    }
+
+    private void isTrailValidToUpdate(Trail trail) {
+        if (trail.getName().isEmpty() || trail.getName().isBlank())
+            throw new CreateOrUpdateDataException("Name is empty");
+        if (trail.getDescription().isEmpty() || trail.getDescription().isBlank())
+            throw new CreateOrUpdateDataException("Description is empty");
+        if (trail.getContent().isEmpty() || trail.getContent().isBlank())
+            throw new CreateOrUpdateDataException("Content is empty");
+        Trail trailToUpdate = getTrail(trail.getId());
+        if (!trailRepository.findByName(trail.getName()).getId().equals(trailToUpdate.getId()))
+            throw new CreateOrUpdateDataException("Name already in use: " + trail.getName());
     }
 }

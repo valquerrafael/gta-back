@@ -1,4 +1,4 @@
-package br.edu.ifpb.gta.gtaback.model;
+package br.edu.ifpb.gta.gtaback.models;
 
 import javax.persistence.*;
 import java.util.List;
@@ -53,10 +53,6 @@ public class Trail {
 
     public User getTeacher() {
         return teacher;
-    }
-
-    public void setTeacher(User teacher) {
-        this.teacher = teacher;
     }
 
     public List<User> getStudents() {

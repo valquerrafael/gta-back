@@ -1,4 +1,4 @@
-package br.edu.ifpb.gta.gtaback.model;
+package br.edu.ifpb.gta.gtaback.models;
 
 import br.edu.ifpb.gta.gtaback.services.Util.Role;
 
@@ -16,7 +16,11 @@ public class User {
     @Column(unique = true)
     private String email;
     @Column
+    private String password;
+    @Column
     private Role role;
+    @Column
+    private Institution institution;
     @OneToMany(
         cascade = CascadeType.PERSIST,
         orphanRemoval = false
@@ -26,6 +30,7 @@ public class User {
     public Long getId() {
         return id;
     }
+
     public String getName() {
         return name;
     }
@@ -42,8 +47,20 @@ public class User {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public Role getRole() {
         return role;
+    }
+
+    public Institution getInstitution() {
+        return institution;
     }
 
     public List<Trail> getTrails() {
