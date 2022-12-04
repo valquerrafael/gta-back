@@ -5,6 +5,7 @@ import br.edu.ifpb.gta.gtaback.DTOs.TrailDTO;
 import br.edu.ifpb.gta.gtaback.DTOs.UserDTO;
 import br.edu.ifpb.gta.gtaback.exceptions.*;
 import br.edu.ifpb.gta.gtaback.models.Institution;
+import br.edu.ifpb.gta.gtaback.models.Role;
 import br.edu.ifpb.gta.gtaback.models.Trail;
 import br.edu.ifpb.gta.gtaback.models.User;
 import br.edu.ifpb.gta.gtaback.repositories.InstitutionRepository;
@@ -15,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static br.edu.ifpb.gta.gtaback.services.Util.*;
-
 @Service
 public class InstitutionService {
     // TODO: adicionar usuário que está chamando o método
@@ -25,6 +24,8 @@ public class InstitutionService {
     // TODO: criptografar dados necessários
     @Autowired
     private InstitutionRepository institutionRepository;
+    @Autowired
+    private UtilService utilService;
 
     public InstitutionDTO login(String cnpj, String password) {
         Institution institution = institutionRepository.findByCnpj(cnpj);
@@ -38,7 +39,7 @@ public class InstitutionService {
     }
 
     public InstitutionDTO getDTO(Long id) {
-        return new InstitutionDTO(getInstitution(id));
+        return new InstitutionDTO(utilService.getInstitution(id));
     }
 
     @Transactional
@@ -51,7 +52,7 @@ public class InstitutionService {
 
     @Transactional
     public InstitutionDTO update(Long id, Institution institution) {
-        Institution institutionToUpdate = getInstitution(id);
+        Institution institutionToUpdate = utilService.getInstitution(id);
 
         isInstitutionValid(institution, false);
 
@@ -64,7 +65,7 @@ public class InstitutionService {
     }
 
     public List<UserDTO> getTeachers(Long id) {
-        Institution institution = getInstitution(id);
+        Institution institution = utilService.getInstitution(id);
         List<UserDTO> teachers = new ArrayList<>();
 
         for (User user : institution.getTeachers())
@@ -74,7 +75,7 @@ public class InstitutionService {
     }
 
     public List<UserDTO> getStudents(Long id) {
-        Institution institution = getInstitution(id);
+        Institution institution = utilService.getInstitution(id);
         List<UserDTO> students = new ArrayList<>();
 
         for (User user : institution.getStudents())
@@ -84,7 +85,7 @@ public class InstitutionService {
     }
 
     public List<TrailDTO> getTrails(Long id) {
-        Institution institution = getInstitution(id);
+        Institution institution = utilService.getInstitution(id);
         List<TrailDTO> trails = new ArrayList<>();
 
         for (Trail trail : institution.getTrails())
@@ -95,8 +96,8 @@ public class InstitutionService {
 
     @Transactional
     public InstitutionDTO addTeacher(Long id, Long teacherId) {
-        Institution institution = getInstitution(id);
-        User teacher = getUser(teacherId);
+        Institution institution = utilService.getInstitution(id);
+        User teacher = utilService.getUser(teacherId);
 
         if (!teacher.getRole().equals(Role.TEACHER))
             throw new UserIsNotRoleException("New institution's teacher is not a teacher");
@@ -110,8 +111,8 @@ public class InstitutionService {
 
     @Transactional
     public InstitutionDTO removeTeacher(Long id, Long teacherId) {
-        Institution institution = getInstitution(id);
-        User teacher = getUser(teacherId);
+        Institution institution = utilService.getInstitution(id);
+        User teacher = utilService.getUser(teacherId);
 
         if (!institution.getStudents().contains(teacher))
             throw new TrailHasUserException("Institution does not have user: " + teacher.getId());
@@ -123,8 +124,8 @@ public class InstitutionService {
 
     @Transactional
     public InstitutionDTO addStudent(Long id, Long studentId) {
-        Institution institution = getInstitution(id);
-        User student = getUser(studentId);
+        Institution institution = utilService.getInstitution(id);
+        User student = utilService.getUser(studentId);
 
         if (!student.getRole().equals(Role.STUDENT))
             throw new UserIsNotRoleException("New institution's student is not a student");
@@ -138,8 +139,8 @@ public class InstitutionService {
 
     @Transactional
     public InstitutionDTO removeStudent(Long id, Long studentId) {
-        Institution institution = getInstitution(id);
-        User student = getUser(studentId);
+        Institution institution = utilService.getInstitution(id);
+        User student = utilService.getUser(studentId);
 
         if (!institution.getStudents().contains(student))
             throw new TrailHasUserException("Institution does not have user: " + student.getId());
@@ -180,7 +181,7 @@ public class InstitutionService {
             throw new CreateOrUpdateDataException("Name is empty");
         if (institution.getPassword().isEmpty() || institution.getPassword().isBlank())
             throw new CreateOrUpdateDataException("Password is empty");
-        Institution institutionToUpdate = getInstitution(institution.getId());
+        Institution institutionToUpdate = utilService.getInstitution(institution.getId());
         if (!institutionRepository.findByName(institution.getName()).getId().equals(institutionToUpdate.getId()))
             throw new CreateOrUpdateDataException("Name already in use: " + institution.getName());
     }

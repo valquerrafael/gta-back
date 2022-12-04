@@ -16,15 +16,9 @@ public class Institution {
     private String cnpj;
     @Column
     private String password;
-    @OneToMany(
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "institution")
     private List<User> teachers;
-    @OneToMany(
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "institution")
     private List<User> students;
 
     public Long getId() {

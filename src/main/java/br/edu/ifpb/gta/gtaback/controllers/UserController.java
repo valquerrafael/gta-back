@@ -7,42 +7,42 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/users/login")
+    @PostMapping("/login")
     public UserDTO login(@RequestBody String email, String password) {
         return userService.login(email, password);
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     public UserDTO get(@PathVariable("id") Long id) {
         return userService.getDTO(id);
     }
 
-    @PostMapping("/users")
+    @PostMapping
     public UserDTO create(@RequestBody User user) {
         return userService.create(user);
     }
 
-    @PutMapping("/users/{id}")
+    @PutMapping("/{id}")
     public UserDTO update(@PathVariable("id") Long id, @RequestBody User user) {
         return userService.update(id, user);
     }
 
-    @PostMapping("/users/{id}/add-trail")
+    @PostMapping("/{id}/add-trail")
     public UserDTO addTrail(@PathVariable("id") Long id, @RequestBody Long trailId) {
         return userService.addTrail(id, trailId);
     }
 
-    @PostMapping("/users/{id}/remove-trail")
+    @PostMapping("/{id}/remove-trail")
     public UserDTO removeTrail(@PathVariable("id") Long id, @RequestBody Long trailId) {
         return userService.removeTrail(id, trailId);
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
         userService.delete(id);
     }

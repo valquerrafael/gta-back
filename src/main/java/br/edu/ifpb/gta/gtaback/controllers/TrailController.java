@@ -9,42 +9,37 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/trails")
 public class TrailController {
     @Autowired
     private TrailService trailService;
 
-    @GetMapping("/trails")
-    public List<TrailDTO> getAll() {
-        return trailService.getAll();
-    }
-
-    @GetMapping("/trails/{id}")
+    @GetMapping("/{id}")
     public TrailDTO get(@PathVariable("id") Long id) {
         return trailService.getDTO(id);
     }
 
-    @PostMapping("/trails")
+    @PostMapping
     public TrailDTO create(@RequestBody Trail trail) {
         return trailService.create(trail);
     }
 
-    @PutMapping("/trails/{id}")
+    @PutMapping("/{id}")
     public TrailDTO update(@PathVariable("id") Long id, @RequestBody Trail trail) {
         return trailService.update(id, trail);
     }
 
-    @PostMapping("/trails/{id}/add-student")
+    @PostMapping("/{id}/add-student")
     public TrailDTO addStudent(@PathVariable("id") Long id, @RequestBody Long studentId) {
         return trailService.addStudent(id, studentId);
     }
 
-    @PostMapping("/trails/{id}/remove-student")
+    @PostMapping("/{id}/remove-student")
     public TrailDTO removeStudent(@PathVariable("id") Long id, @RequestBody Long studentId) {
         return trailService.removeStudent(id, studentId);
     }
 
-    @DeleteMapping("/trails/{id}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
         trailService.delete(id);
     }

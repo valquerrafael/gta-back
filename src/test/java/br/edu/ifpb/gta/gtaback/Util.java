@@ -4,6 +4,7 @@ import br.edu.ifpb.gta.gtaback.DTOs.InstitutionDTO;
 import br.edu.ifpb.gta.gtaback.DTOs.TrailDTO;
 import br.edu.ifpb.gta.gtaback.DTOs.UserDTO;
 import br.edu.ifpb.gta.gtaback.models.Institution;
+import br.edu.ifpb.gta.gtaback.models.Role;
 import br.edu.ifpb.gta.gtaback.models.Trail;
 import br.edu.ifpb.gta.gtaback.models.User;
 
@@ -52,7 +53,7 @@ public class Util {
         private String name = "Test Student";
         private String email = "test.student@email.com";
         private String password = "123456";
-        private br.edu.ifpb.gta.gtaback.services.Util.Role role = br.edu.ifpb.gta.gtaback.services.Util.Role.STUDENT;
+        private Role role = Role.STUDENT;
 
         public Long getId() {
             return id;
@@ -66,7 +67,7 @@ public class Util {
         public String getPassword() {
             return password;
         }
-        public br.edu.ifpb.gta.gtaback.services.Util.Role getRole() {
+        public Role getRole() {
             return role;
         }
         public Institution getInstitution() {
@@ -82,7 +83,7 @@ public class Util {
         private String name = "Test Teacher";
         private String email = "test.teacher@email.com";
         private String password = "123456";
-        private br.edu.ifpb.gta.gtaback.services.Util.Role role = br.edu.ifpb.gta.gtaback.services.Util.Role.TEACHER;
+        private Role role = Role.TEACHER;
 
         public Long getId() {
             return id;
@@ -96,7 +97,7 @@ public class Util {
         public String getPassword() {
             return password;
         }
-        public br.edu.ifpb.gta.gtaback.services.Util.Role getRole() {
+        public Role getRole() {
             return role;
         }
         public Institution getInstitution() {

@@ -20,7 +20,8 @@ public class TrailDTO {
         this.description = trail.getDescription();
         this.content = trail.getContent();
         this.teacherId = trail.getTeacher().getId();
-        trail.getStudents().forEach(student -> studentsIds.add(student.getId()));
+        if (trail.getStudents() != null)
+            trail.getStudents().forEach(student -> studentsIds.add(student.getId()));
     }
 
     public Long getId() {

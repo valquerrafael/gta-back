@@ -18,11 +18,15 @@ public class InstitutionDTO {
         this.id = institution.getId();
         this.name = institution.getName();
         this.cnpj = institution.getCnpj();
-        institution.getTeachers().forEach(teacher -> teachersIds.add(teacher.getId()));
-        institution.getStudents().forEach(student -> studentsIds.add(student.getId()));
-        institution.getTeachers().forEach(teacher -> {
-            teacher.getTrails().forEach(trail -> trailsIds.add(trail.getId()));
-        });
+        if (institution.getTeachers() != null) {
+            institution.getTeachers().forEach(teacher -> teachersIds.add(teacher.getId()));
+            institution.getTeachers().forEach(teacher -> {
+                if (teacher.getTrails() != null)
+                    teacher.getTrails().forEach(trail -> trailsIds.add(trail.getId()));
+            });
+        }
+        if (institution.getStudents() != null)
+            institution.getStudents().forEach(student -> studentsIds.add(student.getId()));
     }
 
     public Long getId() {

@@ -1,7 +1,5 @@
 package br.edu.ifpb.gta.gtaback.models;
 
-import br.edu.ifpb.gta.gtaback.services.Util.Role;
-
 import javax.persistence.*;
 import java.util.List;
 
@@ -19,12 +17,9 @@ public class User {
     private String password;
     @Column
     private Role role;
-    @Column
+    @ManyToOne
     private Institution institution;
-    @OneToMany(
-        cascade = CascadeType.PERSIST,
-        orphanRemoval = false
-    )
+    @OneToMany
     private List<Trail> trails;
 
     public Long getId() {

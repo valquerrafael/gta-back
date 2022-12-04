@@ -9,10 +9,9 @@ import br.edu.ifpb.gta.gtaback.models.Trail;
 import br.edu.ifpb.gta.gtaback.models.User;
 import br.edu.ifpb.gta.gtaback.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static br.edu.ifpb.gta.gtaback.services.Util.*;
 
 @Service
 public class UserService {
@@ -22,6 +21,8 @@ public class UserService {
     // TODO: criptografar dados necessários
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UtilService utilService;
 
     public UserDTO login(String email, String password) {
         User user = userRepository.findByEmail(email);
@@ -35,7 +36,7 @@ public class UserService {
     }
 
     public UserDTO getDTO(Long id) {
-        return new UserDTO(getUser(id));
+        return new UserDTO(utilService.getUser(id));
     }
 
     @Transactional
@@ -48,7 +49,7 @@ public class UserService {
 
     @Transactional
     public UserDTO update(Long id, User user) {
-        User userToUpdate = getUser(id);
+        User userToUpdate = utilService.getUser(id);
 
         isUserValid(user, false);
 
@@ -64,8 +65,8 @@ public class UserService {
 
     @Transactional
     public UserDTO addTrail(Long id, Long trailId) {
-        User user = getUser(id);
-        Trail trail = getTrail(trailId);
+        User user = utilService.getUser(id);
+        Trail trail = utilService.getTrail(trailId);
 
         if (user.getTrails().contains(trail))
             throw new UserHasTrailException("User already has trail: " + trail.getName());
@@ -77,8 +78,8 @@ public class UserService {
 
     @Transactional
     public UserDTO removeTrail(Long id, Long trailId) throws RuntimeException {
-        User user = getUser(id);
-        Trail trail = getTrail(trailId);
+        User user = utilService.getUser(id);
+        Trail trail = utilService.getTrail(trailId);
 
         if (!user.getTrails().contains(trail))
             throw new UserHasTrailException("User does not have trail: " + trail.getName());
@@ -116,7 +117,7 @@ public class UserService {
             throw new CreateOrUpdateDataException("Email already in use: " + user.getEmail());
         if (user.getInstitution() == null)
             throw new CreateOrUpdateDataException("Institution is null");
-        getInstitution(user.getInstitution().getId());
+        utilService.getInstitution(user.getInstitution().getId());
     }
 
     private void isUserValidToUpdate(User user) {
@@ -126,7 +127,7 @@ public class UserService {
             throw new CreateOrUpdateDataException("Email is empty");
         if (user.getPassword().isEmpty() || user.getPassword().isBlank())
             throw new CreateOrUpdateDataException("Password is empty");
-        User userToUpdate = getUser(user.getId());
+        User userToUpdate = utilService.getUser(user.getId());
         if (user.getRole() != userToUpdate.getRole())
             throw new CreateOrUpdateDataException("Role is not the same");
         if (!userRepository.findByEmail(user.getEmail()).getId().equals(userToUpdate.getId()))

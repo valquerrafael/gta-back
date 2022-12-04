@@ -4,6 +4,7 @@ import br.edu.ifpb.gta.gtaback.DTOs.TrailDTO;
 import br.edu.ifpb.gta.gtaback.exceptions.CreateOrUpdateDataException;
 import br.edu.ifpb.gta.gtaback.exceptions.TrailHasUserException;
 import br.edu.ifpb.gta.gtaback.exceptions.UserIsNotRoleException;
+import br.edu.ifpb.gta.gtaback.models.Role;
 import br.edu.ifpb.gta.gtaback.models.Trail;
 import br.edu.ifpb.gta.gtaback.models.User;
 import br.edu.ifpb.gta.gtaback.repositories.TrailRepository;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static br.edu.ifpb.gta.gtaback.services.Util.*;
+import static br.edu.ifpb.gta.gtaback.services.UtilService.*;
 
 @Service
 public class TrailService {
@@ -24,6 +25,8 @@ public class TrailService {
     // TODO: criptografar dados necessários
     @Autowired
     private TrailRepository trailRepository;
+    @Autowired
+    private UtilService utilService;
 
     public List<TrailDTO> getAll() {
         List<TrailDTO> trails = new ArrayList<>();
@@ -35,7 +38,7 @@ public class TrailService {
     }
 
     public TrailDTO getDTO(Long id) {
-        return new TrailDTO(getTrail(id));
+        return new TrailDTO(utilService.getTrail(id));
     }
 
     public TrailDTO create(Trail trail) {
@@ -47,7 +50,7 @@ public class TrailService {
 
     @Transactional
     public TrailDTO update(Long id, Trail trail) {
-        Trail trailToUpdate = getTrail(id);
+        Trail trailToUpdate = utilService.getTrail(id);
 
         isTrailValid(trail, false);
 
@@ -63,8 +66,8 @@ public class TrailService {
 
     @Transactional
     public TrailDTO addStudent(Long id, Long studentId) {
-        Trail trail = getTrail(id);
-        User student = getUser(studentId);
+        Trail trail = utilService.getTrail(id);
+        User student = utilService.getUser(studentId);
 
         if (!student.getRole().equals(Role.STUDENT))
             throw new UserIsNotRoleException("New trail's student is not a student");
@@ -78,8 +81,8 @@ public class TrailService {
 
     @Transactional
     public TrailDTO removeStudent(Long id, Long studentId) {
-        Trail trail = getTrail(id);
-        User student = getUser(studentId);
+        Trail trail = utilService.getTrail(id);
+        User student = utilService.getUser(studentId);
 
         if (!trail.getStudents().contains(student))
             throw new TrailHasUserException("Trail does not have user: " + student.getId());
@@ -124,7 +127,7 @@ public class TrailService {
             throw new CreateOrUpdateDataException("Description is empty");
         if (trail.getContent().isEmpty() || trail.getContent().isBlank())
             throw new CreateOrUpdateDataException("Content is empty");
-        Trail trailToUpdate = getTrail(trail.getId());
+        Trail trailToUpdate = utilService.getTrail(trail.getId());
         if (!trailRepository.findByName(trail.getName()).getId().equals(trailToUpdate.getId()))
             throw new CreateOrUpdateDataException("Name already in use: " + trail.getName());
     }

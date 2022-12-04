@@ -15,12 +15,9 @@ public class Trail {
     private String description;
     @Column(length = 3000)
     private String content;
-    @OneToOne()
+    @ManyToOne
     private User teacher;
-    @OneToMany(
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "trails")
     private List<User> students;
 
     public Long getId() {

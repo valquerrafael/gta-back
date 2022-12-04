@@ -5,7 +5,7 @@ import br.edu.ifpb.gta.gtaback.models.User;
 import java.util.ArrayList;
 import java.util.List;
 
-import static br.edu.ifpb.gta.gtaback.services.Util.Role;
+import br.edu.ifpb.gta.gtaback.models.Role;
 
 public class UserDTO {
     private Long id;
@@ -21,7 +21,8 @@ public class UserDTO {
         this.email = user.getEmail();
         this.role = user.getRole();
         this.institutionId = user.getInstitution().getId();
-        user.getTrails().forEach(trail -> trailsIds.add(trail.getId()));
+        if (user.getTrails() != null)
+            user.getTrails().forEach(trail -> trailsIds.add(trail.getId()));
     }
 
     public Long getId() {
