@@ -12,4 +12,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     @Query("SELECT t FROM Student s JOIN s.trails t WHERE s.id = ?1 ORDER BY t.name ASC")
     List<Trail> findTrails(Long id);
+
+    @Query("SELECT s FROM Student s ORDER BY s.score DESC")
+    List<Student> findRanking();
 }

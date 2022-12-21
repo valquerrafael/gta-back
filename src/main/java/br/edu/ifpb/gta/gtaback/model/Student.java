@@ -18,12 +18,18 @@ public class Student implements User {
     @ManyToMany
     private List<Trail> trails;
 
+    public Student() {}
+
     public Student(StudentDTO studentDTO) {
-        this.id = studentDTO.getId();
+        this.id = studentDTO.getStudentId();
         this.cpf = studentDTO.getCpf();
         this.name = studentDTO.getName();
         this.password = studentDTO.getPassword();
-        this.score = studentDTO.getScore();
+        if (studentDTO.getScore() == null) {
+            this.score = 0;
+        } else {
+            this.score = studentDTO.getScore();
+        }
     }
 
     public Long getId() {

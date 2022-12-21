@@ -17,8 +17,10 @@ public class Teacher implements User {
     @ManyToMany(cascade=CascadeType.REMOVE)
     private List<Trail> trails;
 
+    public Teacher() {}
+
     public Teacher(TeacherDTO teacherDTO) {
-        this.id = teacherDTO.getId();
+        this.id = teacherDTO.getTeacherId();
         this.cpf = teacherDTO.getCpf();
         this.name = teacherDTO.getName();
         this.password = teacherDTO.getPassword();

@@ -8,7 +8,4 @@ import java.util.List;
 
 public interface TrailContentRepository extends JpaRepository<TrailContent, Long> {
     TrailContent findByName(String name);
-
-    @Query("SELECT t FROM TrailContent t WHERE t.trail.id = ?1")
-    List<TrailContent> findByTrailId(Long trailId);
 }

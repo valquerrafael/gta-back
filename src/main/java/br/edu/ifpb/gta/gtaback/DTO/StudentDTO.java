@@ -6,27 +6,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StudentDTO {
-    private Long id;
+    private Long studentId;
     private String cpf;
     private String name;
     private String password;
     private Integer score;
     private List<Long> trails;
 
+    public StudentDTO() {}
+
     public StudentDTO(Student student) {
-        id = student.getId();
+        studentId = student.getId();
         cpf = student.getCpf();
         name = student.getName();
         password = student.getPassword();
         score = student.getScore();
         trails = new ArrayList<>();
-        student.getTrails().forEach(
-            trail -> trails.add(trail.getId())
-        );
+        if (student.getTrails() != null) {
+            student.getTrails().forEach(trail -> trails.add(trail.getId()));
+        }
     }
 
-    public Long getId() {
-        return id;
+    public Long getStudentId() {
+        return studentId;
     }
 
     public String getCpf() {

@@ -21,8 +21,10 @@ public class Trail {
     @ManyToMany
     private List<Student> students;
 
+    public Trail() {}
+
     public Trail(TrailDTO trailDTO, Teacher teacher) {
-        this.id = trailDTO.getId();
+        this.id = trailDTO.getTrailId();
         this.name = trailDTO.getName();
         this.description = trailDTO.getDescription();
         this.teacher = teacher;

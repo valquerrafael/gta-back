@@ -1,6 +1,6 @@
 package br.edu.ifpb.gta.gtaback.service;
 
-import br.edu.ifpb.gta.gtaback.DTO.StudentDTO;
+import br.edu.ifpb.gta.gtaback.DTO.*;
 import br.edu.ifpb.gta.gtaback.model.Student;
 import br.edu.ifpb.gta.gtaback.model.Trail;
 import br.edu.ifpb.gta.gtaback.repository.StudentRepository;
@@ -9,12 +9,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class StudentService {
     @Autowired
     private StudentRepository studentRepository;
     @Autowired
     private TrailRepository trailRepository;
+
+    public StudentDTO login(StudentDTO studentDTO) {
+        Student student = studentRepository.findByCpf(studentDTO.getCpf());
+        if (student != null && student.getPassword().equals(studentDTO.getPassword())) {
+            return new StudentDTO(student);
+        }
+        return null;
+    }
 
     private Student getStudentById(Long id) {
         return studentRepository.findById(id).orElseThrow(
@@ -41,36 +52,52 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentDTO updatePassword(Long id, String password) {
+    public StudentDTO updatePassword(Long id, StudentDTO studentDTO) {
         Student student = getStudentById(id);
-        student.setPassword(password);
+        student.setPassword(studentDTO.getPassword());
         return new StudentDTO(studentRepository.save(student));
     }
 
     @Transactional
-    public StudentDTO updateScore(Long id, Integer score) {
+    public StudentDTO updateScore(Long id, TrailContentDTO trailContentDTO) {
         Student student = getStudentById(id);
-        student.addScore(score);
+        student.addScore(trailContentDTO.getScore());
         return new StudentDTO(studentRepository.save(student));
     }
 
     @Transactional
-    public StudentDTO addTrail(Long id, Long trailId) {
+    public StudentDTO subscribeTrail(Long id, TrailDTO trailDTO) {
         Student student = getStudentById(id);
-        Trail trail = trailRepository.findById(trailId).orElseThrow(
-            () -> new RuntimeException("Trail not found with id: " + trailId)
+        Trail trail = trailRepository.findById(trailDTO.getTrailId()).orElseThrow(
+            () -> new RuntimeException("Trail not found with id: " + trailDTO.getTrailId())
         );
         student.addTrail(trail);
+        trail.addStudent(student);
+        trailRepository.save(trail);
         return new StudentDTO(studentRepository.save(student));
     }
 
     @Transactional
-    public StudentDTO removeTrail(Long id, Long trailId) {
+    public StudentDTO unsubscribeTrail(Long id, TrailDTO trailDTO) {
         Student student = getStudentById(id);
-        Trail trail = trailRepository.findById(trailId).orElseThrow(
-            () -> new RuntimeException("Trail not found with id: " + trailId)
+        Trail trail = trailRepository.findById(trailDTO.getTrailId()).orElseThrow(
+            () -> new RuntimeException("Trail not found with id: " + trailDTO.getTrailId())
         );
         student.removeTrail(trail);
+        trail.removeStudent(student);
+        trailRepository.save(trail);
         return new StudentDTO(studentRepository.save(student));
+    }
+
+    public List<TrailDTO> getTrails(Long id) {
+        List<TrailDTO> trails = new ArrayList<>();
+        studentRepository.findTrails(id).forEach(trail -> trails.add(new TrailDTO(trail)));
+        return trails;
+    }
+
+    public List<StudentDTO> getRanking() {
+        List<StudentDTO> students = new ArrayList<>();
+        studentRepository.findRanking().forEach(student -> students.add(new StudentDTO(student)));
+        return students;
     }
 }

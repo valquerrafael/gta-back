@@ -1,5 +1,6 @@
 package br.edu.ifpb.gta.gtaback.service;
 
+import br.edu.ifpb.gta.gtaback.DTO.StudentDTO;
 import br.edu.ifpb.gta.gtaback.DTO.TrailContentDTO;
 import br.edu.ifpb.gta.gtaback.DTO.TrailDTO;
 import br.edu.ifpb.gta.gtaback.model.*;
@@ -16,10 +17,6 @@ public class TrailService {
     @Autowired
     private TrailRepository trailRepository;
     @Autowired
-    private TeacherRepository teacherRepository;
-    @Autowired
-    private StudentRepository studentRepository;
-    @Autowired
     private TrailContentRepository trailContentRepository;
 
     private Trail getTrailById(Long id) {
@@ -32,64 +29,27 @@ public class TrailService {
         return new TrailDTO(getTrailById(id));
     }
 
-    public List<TrailContentDTO> getTrailContent(Long id) {
-        List<TrailContentDTO> allTrailContent = new ArrayList<>();
-        trailContentRepository.findByTrailId(id).forEach(
-            trailContent -> allTrailContent.add(new TrailContentDTO(trailContent))
-        );
-        return allTrailContent;
-    }
-
     @Transactional
-    public void deleteTrail(Long id) {
-        trailRepository.deleteById(id);
-    }
-
-    @Transactional
-    public TrailDTO createTrail(TrailDTO trailDTO) {
-        Teacher teacher = teacherRepository.findById(trailDTO.getTeacher()).orElseThrow(
-            () -> new RuntimeException("Teacher not found with id: " + trailDTO.getTeacher())
-        );
-        return new TrailDTO(trailRepository.save(new Trail(trailDTO, teacher)));
-    }
-
-    @Transactional
-    public TrailDTO addContent(Long id, Long contentId) {
+    public TrailDTO addContent(Long id, TrailContentDTO trailContentDTO) {
         Trail trail = getTrailById(id);
-        TrailContent trailContent = trailContentRepository.findById(contentId).orElseThrow(
-            () -> new RuntimeException("Trail content not found with id: " + contentId)
-        );
-        trail.addContent(trailContent);
-        return new TrailDTO(trailRepository.save(trail));
+        trailContentRepository.saveAndFlush(new TrailContent(trailContentDTO, trail));
+        return new TrailDTO(getTrailById(id));
     }
 
     @Transactional
-    public TrailDTO removeContent(Long id, Long contentId) {
+    public TrailDTO removeContent(Long id, TrailContentDTO trailContentDTO) {
         Trail trail = getTrailById(id);
-        TrailContent trailContent = trailContentRepository.findById(contentId).orElseThrow(
-            () -> new RuntimeException("Trail content not found with id: " + contentId)
+        TrailContent trailContent = trailContentRepository.findById(trailContentDTO.getTrailContentId()).orElseThrow(
+            () -> new RuntimeException("Trail content not found with id: " + trailContentDTO.getTrailContentId())
         );
         trail.removeContent(trailContent);
+        trailContentRepository.delete(trailContent);
         return new TrailDTO(trailRepository.save(trail));
     }
 
-    @Transactional
-    public TrailDTO addStudent(Long id, Long studentId) {
-        Trail trail = getTrailById(id);
-        Student student = studentRepository.findById(studentId).orElseThrow(
-            () -> new RuntimeException("Student not found with id: " + studentId)
-        );
-        trail.addStudent(student);
-        return new TrailDTO(trailRepository.save(trail));
-    }
-
-    @Transactional
-    public TrailDTO removeStudent(Long id, Long studentId) {
-        Trail trail = getTrailById(id);
-        Student student = studentRepository.findById(studentId).orElseThrow(
-                () -> new RuntimeException("Student not found with id: " + studentId)
-        );
-        trail.removeStudent(student);
-        return new TrailDTO(trailRepository.save(trail));
+    public List<StudentDTO> getStudents(Long id) {
+        List<StudentDTO> students = new ArrayList<>();
+        trailRepository.findStudents(id).forEach(student -> students.add(new StudentDTO(student)));
+        return students;
     }
 }

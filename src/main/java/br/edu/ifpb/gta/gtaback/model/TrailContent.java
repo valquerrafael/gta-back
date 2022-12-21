@@ -17,8 +17,10 @@ public class TrailContent {
     @ManyToOne
     private Trail trail;
 
+    public TrailContent() {}
+
     public TrailContent(TrailContentDTO trailContentDTO, Trail trail) {
-        this.id = trailContentDTO.getId();
+        this.id = trailContentDTO.getTrailContentId();
         this.name = trailContentDTO.getName();
         this.content = trailContentDTO.getContent();
         this.score = trailContentDTO.getScore();

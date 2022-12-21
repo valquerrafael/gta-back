@@ -6,30 +6,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TrailDTO {
-    private Long id;
+    private Long trailId;
     private String name;
     private String description;
-    private List<Long> contents;
+    private List<TrailContentDTO> contents;
     private Long teacher;
     private List<Long> students;
 
+    public TrailDTO() {}
+
     public TrailDTO(Trail trail) {
-        id = trail.getId();
+        trailId = trail.getId();
         name = trail.getName();
         description = trail.getDescription();
         contents = new ArrayList<>();
-        trail.getContents().forEach(
-            content -> contents.add(content.getId())
-        );
+        if (trail.getContents() != null) {
+            trail.getContents().forEach(content -> contents.add(new TrailContentDTO(content)));
+        }
         teacher = trail.getTeacher().getId();
         students = new ArrayList<>();
-        trail.getStudents().forEach(
-            student -> students.add(student.getId())
-        );
+        if (trail.getStudents() != null) {
+            trail.getStudents().forEach(student -> students.add(student.getId()));
+        }
     }
 
-    public Long getId() {
-        return id;
+    public Long getTrailId() {
+        return trailId;
     }
 
     public String getName() {
@@ -40,7 +42,7 @@ public class TrailDTO {
         return description;
     }
 
-    public List<Long> getContents() {
+    public List<TrailContentDTO> getContents() {
         return contents;
     }
 

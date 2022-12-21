@@ -11,7 +11,4 @@ public interface TrailRepository extends JpaRepository<Trail, Long> {
     Trail findByName(String name);
     @Query("SELECT s FROM Trail t JOIN t.students s WHERE t.id = ?1 ORDER BY s.name ASC")
     List<Student> findStudents(Long id);
-
-    @Query("SELECT s FROM Trail t JOIN t.students s WHERE t.id = ?1 ORDER BY s.score DESC")
-    List<Student> findStudentsRanking(Long id);
 }
