@@ -3,6 +3,7 @@ package br.edu.ifpb.gta.gtaback.model;
 import br.edu.ifpb.gta.gtaback.DTO.TeacherDTO;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,7 +16,7 @@ public class Teacher implements User {
     private String name;
     private String password;
     @ManyToMany(cascade=CascadeType.REMOVE)
-    private List<Trail> trails;
+    private List<Trail> trails = new ArrayList<>();
 
     public Teacher() {}
 

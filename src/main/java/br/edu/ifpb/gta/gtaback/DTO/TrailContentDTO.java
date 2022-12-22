@@ -7,7 +7,7 @@ public class TrailContentDTO {
     private String name;
     private String content;
     private Integer score;
-    private Long trail;
+    private Long trailId;
 
     public TrailContentDTO() {}
 
@@ -16,7 +16,7 @@ public class TrailContentDTO {
         name = trailContent.getName();
         content = trailContent.getContent();
         score = trailContent.getScore();
-        trail = trailContent.getTrail().getId();
+        trailId = trailContent.getTrail().getId();
     }
 
     public Long getTrailContentId() {
@@ -35,7 +35,7 @@ public class TrailContentDTO {
         return score;
     }
 
-    public Long getTrail() {
-        return trail;
+    public Long getTrailId() {
+        return trailId;
     }
 }

@@ -21,7 +21,9 @@ public class StudentService {
 
     public StudentDTO login(StudentDTO studentDTO) {
         Student student = studentRepository.findByCpf(studentDTO.getCpf());
-        if (student != null && student.getPassword().equals(studentDTO.getPassword())) {
+        if (student == null) {
+            throw new RuntimeException("Student not found with cpf: " + studentDTO.getCpf());
+        } else if (student.getPassword().equals(studentDTO.getPassword())) {
             return new StudentDTO(student);
         }
         return null;

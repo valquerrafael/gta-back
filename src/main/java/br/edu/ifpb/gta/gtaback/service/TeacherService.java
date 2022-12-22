@@ -21,7 +21,9 @@ public class TeacherService {
 
     public TeacherDTO login(TeacherDTO teacherDTO) {
         Teacher teacher = teacherRepository.findByCpf(teacherDTO.getCpf());
-        if (teacher != null && teacher.getPassword().equals(teacherDTO.getPassword())) {
+        if (teacher == null) {
+            throw new RuntimeException("Teacher not found with cpf: " + teacherDTO.getCpf());
+        } else if (teacher.getPassword().equals(teacherDTO.getPassword())) {
             return new TeacherDTO(teacher);
         }
         return null;
@@ -59,7 +61,7 @@ public class TeacherService {
     }
 
     @Transactional
-    public TeacherDTO creteTrail(Long id, TrailDTO trailDTO) {
+    public TeacherDTO createTrail(Long id, TrailDTO trailDTO) {
         Teacher teacher = getTeacherById(id);
         Trail trail = trailRepository.saveAndFlush(new Trail(trailDTO, teacher));
         teacher.addTrail(trail);

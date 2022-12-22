@@ -10,8 +10,8 @@ public class TrailDTO {
     private String name;
     private String description;
     private List<TrailContentDTO> contents;
-    private Long teacher;
-    private List<Long> students;
+    private Long teacherId;
+    private List<Long> studentsIds;
 
     public TrailDTO() {}
 
@@ -23,10 +23,10 @@ public class TrailDTO {
         if (trail.getContents() != null) {
             trail.getContents().forEach(content -> contents.add(new TrailContentDTO(content)));
         }
-        teacher = trail.getTeacher().getId();
-        students = new ArrayList<>();
+        teacherId = trail.getTeacher().getId();
+        studentsIds = new ArrayList<>();
         if (trail.getStudents() != null) {
-            trail.getStudents().forEach(student -> students.add(student.getId()));
+            trail.getStudents().forEach(student -> studentsIds.add(student.getId()));
         }
     }
 
@@ -46,11 +46,11 @@ public class TrailDTO {
         return contents;
     }
 
-    public Long getTeacher() {
-        return teacher;
+    public Long getTeacherId() {
+        return teacherId;
     }
 
-    public List<Long> getStudents() {
-        return students;
+    public List<Long> getStudentsIds() {
+        return studentsIds;
     }
 }

@@ -11,7 +11,7 @@ public class StudentDTO {
     private String name;
     private String password;
     private Integer score;
-    private List<Long> trails;
+    private List<Long> trailsIds;
 
     public StudentDTO() {}
 
@@ -21,9 +21,9 @@ public class StudentDTO {
         name = student.getName();
         password = student.getPassword();
         score = student.getScore();
-        trails = new ArrayList<>();
+        trailsIds = new ArrayList<>();
         if (student.getTrails() != null) {
-            student.getTrails().forEach(trail -> trails.add(trail.getId()));
+            student.getTrails().forEach(trail -> trailsIds.add(trail.getId()));
         }
     }
 
@@ -47,7 +47,7 @@ public class StudentDTO {
         return score;
     }
 
-    public List<Long> getTrails() {
-        return trails;
+    public List<Long> getTrailsIds() {
+        return trailsIds;
     }
 }

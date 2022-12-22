@@ -44,7 +44,7 @@ public class TeacherController {
 
     @PutMapping("/api/teachers/{id}/create-trail")
     public TeacherDTO createTrail(@PathVariable("id") Long id, @RequestBody TrailDTO trailDTO) {
-        return teacherService.creteTrail(id, trailDTO);
+        return teacherService.createTrail(id, trailDTO);
     }
 
     @PutMapping("/api/teachers/{id}/delete-trail")

@@ -10,7 +10,7 @@ public class TeacherDTO {
     private String cpf;
     private String name;
     private String password;
-    private List<Long> trails;
+    private List<Long> trailsIds;
 
     public TeacherDTO() {}
 
@@ -19,9 +19,9 @@ public class TeacherDTO {
         cpf = teacher.getCpf();
         name = teacher.getName();
         password = teacher.getPassword();
-        trails = new ArrayList<>();
+        trailsIds = new ArrayList<>();
         if (teacher.getTrails() != null) {
-            teacher.getTrails().forEach(trail -> trails.add(trail.getId()));
+            teacher.getTrails().forEach(trail -> trailsIds.add(trail.getId()));
         }
     }
 
@@ -41,7 +41,7 @@ public class TeacherDTO {
         return password;
     }
 
-    public List<Long> getTrails() {
-        return trails;
+    public List<Long> getTrailsIds() {
+        return trailsIds;
     }
 }

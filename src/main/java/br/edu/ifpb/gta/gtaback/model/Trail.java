@@ -3,6 +3,7 @@ package br.edu.ifpb.gta.gtaback.model;
 import br.edu.ifpb.gta.gtaback.DTO.TrailDTO;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,11 +16,11 @@ public class Trail {
     @Column(length=5000)
     private String description;
     @OneToMany(mappedBy="trail", cascade=CascadeType.REMOVE)
-    private List<TrailContent> contents;
+    private List<TrailContent> contents = new ArrayList<>();
     @ManyToOne
     private Teacher teacher;
     @ManyToMany
-    private List<Student> students;
+    private List<Student> students = new ArrayList<>();
 
     public Trail() {}
 
