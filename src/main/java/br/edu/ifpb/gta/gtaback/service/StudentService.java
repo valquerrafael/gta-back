@@ -102,4 +102,10 @@ public class StudentService {
         studentRepository.findRanking().forEach(student -> students.add(new StudentDTO(student)));
         return students;
     }
+
+    public List<StudentDTO> getAllStudents() {
+        List<StudentDTO> students = new ArrayList<>();
+        studentRepository.findAll().forEach(student -> students.add(new StudentDTO(student)));
+        return students;
+    }
 }

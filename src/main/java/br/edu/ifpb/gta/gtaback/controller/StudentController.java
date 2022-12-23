@@ -27,6 +27,10 @@ public class StudentController {
         return studentService.getStudentByCpf(cpf);
     }
 
+    @GetMapping("/api/students/get-all")
+    public List<StudentDTO> getAllStudents() {
+        return studentService.getAllStudents();
+    }
     @DeleteMapping("/api/students/{id}")
     public void deleteStudent(@PathVariable("id") Long id) {
         studentService.deleteStudent(id);

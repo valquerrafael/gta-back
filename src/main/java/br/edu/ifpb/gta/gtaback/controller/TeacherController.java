@@ -56,4 +56,9 @@ public class TeacherController {
     public List<TrailDTO> getTrails(@PathVariable("id") Long id) {
         return teacherService.getTrails(id);
     }
+
+    @GetMapping("/api/teachers/get-all")
+    public List<TeacherDTO> getAllTeachers() {
+        return teacherService.getAllTeachers();
+    }
 }

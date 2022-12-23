@@ -84,4 +84,10 @@ public class TeacherService {
         teacherRepository.findTrails(id).forEach(trail -> trails.add(new TrailDTO(trail)));
         return trails;
     }
+
+    public List<TeacherDTO> getAllTeachers() {
+        List<TeacherDTO> teachers = new ArrayList<>();
+        teacherRepository.findAll().forEach(teacher -> teachers.add(new TeacherDTO(teacher)));
+        return teachers;
+    }
 }

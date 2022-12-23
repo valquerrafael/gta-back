@@ -52,4 +52,10 @@ public class TrailService {
         trailRepository.findStudents(id).forEach(student -> students.add(new StudentDTO(student)));
         return students;
     }
+
+    public List<TrailDTO> getAllTrails() {
+        List<TrailDTO> trails = new ArrayList<>();
+        trailRepository.findAll().forEach(trail -> trails.add(new TrailDTO(trail)));
+        return trails;
+    }
 }

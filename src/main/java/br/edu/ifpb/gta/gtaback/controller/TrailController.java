@@ -33,4 +33,9 @@ public class TrailController {
     public List<StudentDTO> getStudents(@PathVariable("id") Long id) {
         return trailService.getStudents(id);
     }
+
+    @GetMapping("/api/trails/get-all")
+    public List<TrailDTO> getAllTrails() {
+        return trailService.getAllTrails();
+    }
 }
